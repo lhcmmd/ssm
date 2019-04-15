@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.PersonDao">
+
+   <select id="queryAll" resultType="Person" >
+       select * from t_person 
+   </select>
+   <insert id="insertOne" parameterType="Person">
+   	<selectKey resultType="int" keyProperty="id" order="BEFORE">
+  	 	select t_person_seq.nextval from dual	
+   	</selectKey>
+   	insert into t_person values(#{id},#{name},#{mobile},#{telphone},#{email},#{city},#{birthday})
+   </insert>
+    <delete id="deleteOne" parameterType="Integer">
+   		delete from t_person where id=#{userid}
+   </delete>
+   <update id="updatePerson" parameterType="Person">
+   		update t_person set name=#{name},mobile=#{mobile},telphone=#{telphone}, email=#{email}, city=#{city},birthday=#{birthday,jdbcType=DATE} where id=#{id}
+   </update>
+    <select id="queryOneById" resultType="Person">
+       select * from t_person where id=#{userid}
+   </select>
+   <!-- 分页查所有 -->
+   	<select id="getPersonByPage" resultType="Person">
+		<!-- 
+		oracle分页查询
+		1.通过三层嵌套完成
+		2.第一层处理数据
+		3.固化rownum ===》 rn
+		4.取rn的范围		 -->	
+		select * from (select t.*,rownum rn from (select * from t_person)t) where rn>=#{start} and rn&lt;=#{end}
+	</select>
+	<!-- 查所有的数量 -->
+	<select id="getCount" resultType="int">
+	select  count(id) from t_person
+		<!-- select  count(id) from users where 1=1 -->
+		<!-- <if test="username!=null and username!=''">
+			and username like '%'||#{username}||'%'
+		</if> -->
+		<!-- <if test="username!=null">
+			and username like #{username}
+		</if> -->
+	</select>
+	
+	
+	<!-- 分页模糊查名字 -->
+   	<select id="getPersonByNamePage" resultType="Person">		
+		 select * from (select t.*,rownum rn from (select * from t_person
+			where 1=1 
+			 <if test="name!=null and name!=''">
+				and name like '%'||#{name}||'%'
+			</if> 												
+		<!-- 	<if test="name!=null">
+				and name like #{name}
+			</if> -->												
+		)t) where rn&gt;=#{start} and rn&lt;=#{end}
+	</select>
+	<!-- 分页模糊查名字数量 -->
+	<select id="getCountByName" resultType="int">
+	<!-- select  count(id) from t_person -->
+		 select  count(id) from t_person where 1=1 
+		 <if test="name!=null and name!=''">
+			and name like '%'||#{name}||'%'
+		</if> 
+		<!--  <if test="name!=null">
+			and name like #{name}
+		</if>  -->
+	</select>
+   <!-- 批量删除 -->
+   <delete id="deletePersons">
+		delete from t_person where id in
+		<foreach collection="array" close=")" open="(" separator="," item="id">#{id}</foreach>
+	</delete>
+	
+	
+	<!-- 分页情况查id -->
+   	<select id="queryPersonById" resultType="Person">		
+		 select * from (select t.*,rownum rn from (select * from t_person
+			where 1=1 
+			 <if test="userid!=null and userid!=''">
+				and id like '%'||#{userid}||'%'
+			</if> 												
+		<!-- 	<if test="name!=null">
+				and name like #{name}
+			</if> -->												
+		)t) where rn&gt;=#{start} and rn&lt;=#{end}
+	</select>
+	<!-- 分页查id数量 -->
+	<select id="getCountById" resultType="int">
+	<!-- select  count(id) from t_person -->
+		 select  count(id) from t_person where 1=1 
+		 <if test="userid!=null and userid!=''">
+			and id like '%'||#{userid}||'%'
+		</if> 
+		<!--  <if test="name!=null">
+			and name like #{name}
+		</if>  -->
+	</select>
+	
+	<!-- 分页情况查手机好 -->
+   	<select id="queryPersonByMobile" resultType="Person">		
+		 select * from (select t.*,rownum rn from (select * from t_person
+			where 1=1 
+			 <if test="mobile!=null and mobile!=''">
+				and mobile like '%'||#{mobile}||'%'
+			</if> 												
+		<!-- 	<if test="name!=null">
+				and name like #{name}
+			</if> -->												
+		)t) where rn&gt;=#{start} and rn&lt;=#{end}
+	</select>
+	<!-- 分页查手机号数量 -->
+	<select id="getCountByMobile" resultType="int">
+	<!-- select  count(id) from t_person -->
+		 select  count(id) from t_person where 1=1 
+		 <if test="mobile!=null and mobile!=''">
+			and mobile like '%'||#{mobile}||'%'
+		</if> 
+		<!--  <if test="name!=null">
+			and name like #{name}
+		</if>  -->
+	</select>
+	
+	
+   
+   
+</mapper>

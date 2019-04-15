@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop/spring-aop-3.2.xsd ">
+     
+   <!-- 引入小配置文件   -->  
+   <context:property-placeholder location="classpath:/com/baizhi/conf/placeholder.properties"/>  
+      
+   <!-- 配置DataSource : 使用dbcp(BasicDataSource) -->   
+   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+         <property name="driverClassName" value="${driver}"/>
+         <property name="url" value="${url}"/>
+         <property name="username" value="${name}"/>
+         <property name="password" value="${password}"/>
+   </bean>
+      
+   <!-- Mybatis和spring的整合 : 构建SqlSessionFactory对象   -->
+   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+       <!-- 注入DataSource 和 mapper路径   -->
+       <property name="dataSource" ref="dataSource"></property>
+       <property name="mapperLocations" value="classpath:com/baizhi/dao/*DaoImpl.xml"/>
+       <!-- 为实体类定义别名 ( 会在mapper文件里使用 ) , 别名默认( 类名   或者  类名首字母小写) -->
+       <property name="typeAliasesPackage" value="com.baizhi.entity"></property>
+   </bean>   
+   
+ 
+   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+       <!-- 工作需要注入两个值 : sqlSessionFactory  和    dao接口所在的包   -->
+       <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+       <property name="basePackage" value="com.baizhi.dao"></property>
+   </bean>
+   
+    <!-- 配置事务管理器  -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+         <property name="dataSource" ref="dataSource"></property>
+    </bean>   
+	
+	<!--  注解扫描    -->
+	<context:component-scan base-package="com.baizhi"/>
+	
+	<!--  注解驱动: 注册事务管理器  -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+       
+</beans>
+
+
+
+
+
+
+
